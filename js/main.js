@@ -175,7 +175,7 @@ function initialize() {
 
   ArbolText.position.x = 2.26;
   Arbol.add(ArbolText);
-  Arbol.scale.set(0.5, 0.5, 0.5);
+  Arbol.scale.set(0.2, 0.2, 0.2);
   markerRoot1.add(Arbol);
 
   //Alpina queso
