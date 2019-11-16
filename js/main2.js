@@ -175,7 +175,7 @@ function initialize() {
 
     ArbolText.position.x = 2.26;
     Arbol.add(ArbolText);
-    Arbol.scale.set(0.5, 0.5, 0.5);
+    Arbol.scale.set(0.2, 0.2, 0.2);
     Arbol.position.z = 0.5;
     Arbol.position.y = 0.5;
     Arbol.rotation.x = THREE.Math.degToRad(-90);
@@ -227,7 +227,7 @@ function initialize() {
         });
     });
 
-    Queso.scale.set(0.5, 0.5, 0.5);
+    Queso.scale.set(0.2, 0.2, 0.2);
     Queso.position.z = 0.5;
     Queso.position.y = 0.5;
     Queso.rotation.x = THREE.Math.degToRad(-90);
