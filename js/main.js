@@ -16,8 +16,6 @@ let mixerArbol, mixerArbolText;
 let soundArbol;
 let audioArbol = true;
 let Arbol, ArbolText;
-let arbolAnimation, arbolTextAnimation;
-let animArbol = true;
 let arbolActive = false;
 //
 
@@ -26,30 +24,23 @@ let mixerQueso;
 let soundQueso;
 let audioQueso = true;
 let Queso;
-let quesoAnimation;
-let animQueso = true;
 let quesoActive = false;
 let end = false;
 //
 
-var loader = new GLTFLoader();
+//loads
+let audio1 = false;
+let audio2 = false;
+
+let loader = new GLTFLoader();
 
 initialize();
 animate();
 
-window['Arbol'] = Arbol;
-
-
 function initialize() {
   scene = new THREE.Scene();
 
-  // var hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.3);
-  // hemiLight.color.setHSL(0.6, 1, 0.6);
-  // hemiLight.groundColor.setHSL(0.095, 1, 0.75);
-  // hemiLight.position.set(0, 20, 0);
-  // scene.add(hemiLight);
-
-  var dirLight = new THREE.DirectionalLight(0xffffff, 1);
+  let dirLight = new THREE.DirectionalLight(0xffffff, 1);
   dirLight.color.setHSL(0.1, 1, 0.95);
   dirLight.position.set(- 1, 1.75, 1);
   dirLight.position.multiplyScalar(30);
@@ -57,13 +48,6 @@ function initialize() {
 
   let ambientLight = new THREE.AmbientLight(0xcccccc, 0.8);
   scene.add(ambientLight);
-
-  // var light = new THREE.HemisphereLight(0xffffff, 0x444444);
-  // light.position.set(0, 20, 0);
-  // scene.add(light);
-  // var light = new THREE.DirectionalLight(0xffffff);
-  // light.position.set(0, 20, 10);
-  // scene.add(light);
 
   camera = new THREE.Camera();
   scene.add(camera);
@@ -141,7 +125,16 @@ function initialize() {
     soundArbol.setLoop(false);
     soundArbol.setVolume(1);
     // soundArbol.play();
-  });
+  },
+    function (xhr) {
+      if ((xhr.loaded / xhr.total * 100) == 100) {
+        audio1 = true;
+        // console.log('audio1: ' + audio1);
+      }
+    },
+    function (error) {
+      console.log('An error happened');
+    });
 
   markerRoot1 = new THREE.Group();
   scene.add(markerRoot1);
@@ -153,7 +146,6 @@ function initialize() {
   loader.load('./models/arbol/ArbolFull.glb', function (gltf) {
     const model = gltf.scene;
     Arbol.add(model);
-    arbolAnimation = gltf;
     mixerArbol = new THREE.AnimationMixer(model);
     gltf.animations.forEach((clip) => {
       mixerArbol.clipAction(clip).setLoop(1, 1);
@@ -177,7 +169,6 @@ function initialize() {
     mixerArbolText.addEventListener('finished', function (e) {
       // console.log('Termino arbol');
       audioArbol = false;
-      document.getElementById('boton').style.display = 'block';
     });
   });
   //
@@ -196,7 +187,16 @@ function initialize() {
     soundQueso.setLoop(false);
     soundQueso.setVolume(1);
     // soundQueso.play();
-  });
+  },
+    function (xhr) {
+      if ((xhr.loaded / xhr.total * 100) == 100) {
+        audio2 = true;
+        // console.log('audio2: ' + audio2);
+      }
+    },
+    function (error) {
+      console.log('An error happened');
+    });
 
   markerRoot2 = new THREE.Group();
   scene.add(markerRoot2);
@@ -208,7 +208,6 @@ function initialize() {
   loader.load('./models/queso/Queso.glb', function (gltf) {
     const model = gltf.scene;
     Queso.add(model);
-    quesoAnimation = gltf;
     mixerQueso = new THREE.AnimationMixer(model);
     gltf.animations.forEach((clip) => {
       mixerQueso.clipAction(clip).setLoop(1, 1);
@@ -220,20 +219,34 @@ function initialize() {
       // console.log('Termino queso');
       if (end) {
         audioQueso = false;
-        document.getElementById('boton').style.display = 'block';
       }
       end = true;
     });
   });
 
-  Queso.scale.set(0.5, 0.5, 0.5);
+  Queso.scale.set(0.2, 0.2, 0.2);
   markerRoot2.add(Queso);
   //
 }
 
+window.addEventListener('touchstart', function () {
+
+  // create empty buffer
+  var buffer = myContext.createBuffer(1, 1, 22050);
+  var source = myContext.createBufferSource();
+  source.buffer = buffer;
+
+  // connect to output (your speakers)
+  source.connect(myContext.destination);
+
+  // play the file
+  source.noteOn(0);
+
+}, false);
+
 function update() {
-  if (arToolkitSource.ready !== false)
-    arToolkitContext.update(arToolkitSource.domElement);
+  if (arToolkitSource.ready !== false) arToolkitContext.update(arToolkitSource.domElement);
+
   if (markerRoot1.visible) {
     arbolActive = true;
     if (!soundArbol.isPlaying && audioArbol) {
@@ -258,19 +271,13 @@ function update() {
     }
   }
 
-}
+  if (!soundArbol.isPlaying && !audioArbol || !soundQueso.isPlaying && !audioQueso) {
+    document.getElementById('boton').style.display = 'block';
+  }
 
+}
 
 function render() {
-  renderer.render(scene, camera);
-}
-
-
-function animate() {
-  requestAnimationFrame(animate);
-  deltaTime = clock.getDelta();
-  totalTime += deltaTime;
-
   if (arbolActive) {
     if (mixerArbol != null) {
       mixerArbol.update(deltaTime);
@@ -286,7 +293,16 @@ function animate() {
       mixerQueso.update(deltaTime);
     };
   }
+  renderer.render(scene, camera);
+}
 
-  update();
-  render();
+function animate() {
+  requestAnimationFrame(animate);
+  deltaTime = clock.getDelta();
+  totalTime += deltaTime;
+
+  if (audio1 && audio2) {
+    update();
+    render();
+  }
 }
