@@ -277,10 +277,12 @@ function update() {
         }
     }
 
-    if (!soundArbol.isPlaying && !audioArbol || !soundQueso.isPlaying && !audioQueso) {
+    if (!soundArbol.isPlaying && !audioArbol) {
         document.getElementById('boton').style.display = 'block';
     }
-
+    if (!soundQueso.isPlaying && !audioQueso) {
+    document.getElementById('boton2').style.display = 'block';
+    }
 }
 
 function render() {
